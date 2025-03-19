@@ -42,6 +42,9 @@ export default function FormationOnboarding() {
   const [selectedDocType, setSelectedDocType] = useState("")
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null)
+  const [selectedDocument, setSelectedDocument] = useState<string | null>(null)
+  const [validationComment, setValidationComment] = useState("")
+  const [validationDialogOpen, setValidationDialogOpen] = useState(false)
   
   // Liste des types de documents requis pour l'onboarding
   const [documentTypes] = useState<DocumentType[]>([
@@ -212,6 +215,32 @@ export default function FormationOnboarding() {
     }
   }
   
+  // Fonction pour approuver un document
+  const approveDocument = (documentId: string) => {
+    setUploadedDocuments(
+      uploadedDocuments.map(doc => 
+        doc.id === documentId 
+          ? { ...doc, status: "approved", comment: validationComment || undefined } 
+          : doc
+      )
+    )
+    setValidationComment("")
+    setValidationDialogOpen(false)
+  }
+  
+  // Fonction pour rejeter un document
+  const rejectDocument = (documentId: string) => {
+    setUploadedDocuments(
+      uploadedDocuments.map(doc => 
+        doc.id === documentId 
+          ? { ...doc, status: "rejected", comment: validationComment || undefined } 
+          : doc
+      )
+    )
+    setValidationComment("")
+    setValidationDialogOpen(false)
+  }
+  
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -352,6 +381,114 @@ export default function FormationOnboarding() {
                   ))}
                 </TableBody>
               </Table>
+            </CardContent>
+          </Card>
+          
+          {/* Nouvelle section pour la validation des documents */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Validation des Documents</CardTitle>
+              <CardDescription>
+                Vérifiez et validez les documents déposés par les employés
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Employé</TableHead>
+                    <TableHead>Document</TableHead>
+                    <TableHead>Nom du fichier</TableHead>
+                    <TableHead>Date de dépôt</TableHead>
+                    <TableHead>Statut</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {uploadedDocuments
+                    .filter(doc => doc.status === "pending")
+                    .map(doc => (
+                      <TableRow key={doc.id}>
+                        <TableCell className="font-medium">
+                          {employees.find(emp => emp.id === selectedEmployee)?.name || "N/A"}
+                        </TableCell>
+                        <TableCell>
+                          {documentTypes.find(dt => dt.id === doc.documentType)?.name || doc.documentType}
+                        </TableCell>
+                        <TableCell>{doc.fileName}</TableCell>
+                        <TableCell>{doc.uploadDate}</TableCell>
+                        <TableCell>
+                          <Badge className={getStatusBadgeColor(
+                            doc.status === "approved" ? "Approuvé" : 
+                            doc.status === "rejected" ? "Rejeté" : "En attente"
+                          )}>
+                            {doc.status === "approved" ? "Approuvé" : 
+                             doc.status === "rejected" ? "Rejeté" : "En attente"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedDocument(doc.id)
+                              setValidationDialogOpen(true)
+                            }}
+                          >
+                            Valider
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  {uploadedDocuments.filter(doc => doc.status === "pending").length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
+                        Aucun document en attente de validation
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+              
+              {/* Dialog pour la validation des documents */}
+              <Dialog open={validationDialogOpen} onOpenChange={setValidationDialogOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Validation du document</DialogTitle>
+                    <DialogDescription>
+                      Approuvez ou rejetez ce document. Vous pouvez ajouter un commentaire si nécessaire.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="comment" className="text-right">
+                        Commentaire
+                      </Label>
+                      <Input
+                        id="comment"
+                        placeholder="Facultatif"
+                        className="col-span-3"
+                        value={validationComment}
+                        onChange={(e) => setValidationComment(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter className="flex justify-between">
+                    <Button 
+                      variant="destructive" 
+                      onClick={() => selectedDocument && rejectDocument(selectedDocument)}
+                    >
+                      Rejeter
+                    </Button>
+                    <Button 
+                      variant="default" 
+                      onClick={() => selectedDocument && approveDocument(selectedDocument)}
+                    >
+                      Approuver
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
         </TabsContent>
