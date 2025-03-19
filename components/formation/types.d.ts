@@ -23,3 +23,8 @@ declare module '@/components/formation/formation-dashboard' {
   const FormationDashboard: React.FC;
   export default FormationDashboard;
 }
+
+declare module '@/components/formation/formation-onboarding' {
+  const FormationOnboarding: React.FC;
+  export default FormationOnboarding;
+}

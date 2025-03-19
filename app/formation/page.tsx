@@ -10,6 +10,7 @@ import FormationPlanning from "../../components/formation/formation-planning"
 import FormationBudget from "../../components/formation/formation-budget"
 import FormationNotifications from "../../components/formation/formation-notifications"
 import FormationDashboard from "../../components/formation/formation-dashboard"
+import FormationOnboarding from "../../components/formation/formation-onboarding"
 
 export default function FormationPage() {
   return (
@@ -17,12 +18,13 @@ export default function FormationPage() {
       <h1 className="text-3xl font-bold mb-6">Outil de Gestion des Formations</h1>
       
       <Tabs defaultValue="encoding" className="w-full">
-        <TabsList className="grid grid-cols-5 mb-8">
+        <TabsList className="grid grid-cols-6 mb-8">
           <TabsTrigger value="encoding">Encodage</TabsTrigger>
           <TabsTrigger value="planning">Planning Annuel</TabsTrigger>
           <TabsTrigger value="budget">Budget</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="dashboard">Tableaux de Bord</TabsTrigger>
+          <TabsTrigger value="onboarding">Onboarding</TabsTrigger>
         </TabsList>
         
         <TabsContent value="encoding">
@@ -52,6 +54,12 @@ export default function FormationPage() {
         <TabsContent value="dashboard">
           <Suspense fallback={<div>Chargement...</div>}>
             <FormationDashboard />
+          </Suspense>
+        </TabsContent>
+        
+        <TabsContent value="onboarding">
+          <Suspense fallback={<div>Chargement...</div>}>
+            <FormationOnboarding />
           </Suspense>
         </TabsContent>
       </Tabs>
