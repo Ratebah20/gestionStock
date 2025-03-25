@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Calendar } from "@/components/ui/calendar"
@@ -23,9 +23,22 @@ type Formation = {
   status: "planned" | "confirmed" | "completed" | "cancelled"
 }
 
+type EncodedFormation = {
+  id: number
+  title: string
+  type: string
+  provider: string
+  duration: string
+  participants: string
+  cost: string
+  description: string
+  date: string
+}
+
 export default function FormationPlanning() {
   const [date, setDate] = useState<Date>(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | undefined>()
+  const [encodedFormations, setEncodedFormations] = useState<EncodedFormation[]>([])
   const [formationList, setFormationList] = useState<Formation[]>([
     {
       id: 1,
@@ -54,12 +67,40 @@ export default function FormationPlanning() {
   ])
   const [formOpen, setFormOpen] = useState(false)
   const [formData, setFormData] = useState({
-    title: "",
-    type: "",
-    duration: "",
+    selectedFormationId: "",
     status: "planned"
   })
   const [formationDate, setFormationDate] = useState<Date>()
+
+  // Effet pour charger les formations encodées
+  useEffect(() => {
+    // Ici, vous devriez normalement faire un appel API pour récupérer les formations encodées
+    // Pour l'exemple, nous utilisons des données statiques
+    setEncodedFormations([
+      {
+        id: 1,
+        title: "Formation TypeScript",
+        type: "technique",
+        provider: "Formation Tech",
+        duration: "21",
+        participants: "15",
+        cost: "5000",
+        description: "Formation approfondie sur TypeScript",
+        date: "01/04/2025"
+      },
+      {
+        id: 2,
+        title: "Gestion de Projet Agile",
+        type: "management",
+        provider: "Agile Corp",
+        duration: "14",
+        participants: "10",
+        cost: "3500",
+        description: "Formation aux méthodes agiles",
+        date: "15/04/2025"
+      }
+    ])
+  }, [])
 
   // Formations for the selected month
   const monthFormations = formationList.filter(formation => 
@@ -94,12 +135,15 @@ export default function FormationPlanning() {
     e.preventDefault()
     if (!formationDate) return
 
+    const selectedFormation = encodedFormations.find(f => f.id.toString() === formData.selectedFormationId)
+    if (!selectedFormation) return
+
     const newFormation: Formation = {
       id: Date.now(),
-      title: formData.title,
+      title: selectedFormation.title,
       date: formationDate,
-      type: formData.type,
-      duration: formData.duration,
+      type: selectedFormation.type,
+      duration: selectedFormation.duration,
       status: formData.status as "planned" | "confirmed" | "completed" | "cancelled"
     }
 
@@ -108,9 +152,7 @@ export default function FormationPlanning() {
     
     // Reset form
     setFormData({
-      title: "",
-      type: "",
-      duration: "",
+      selectedFormationId: "",
       status: "planned"
     })
     setFormationDate(undefined)
@@ -150,20 +192,27 @@ export default function FormationPlanning() {
                 <DialogHeader>
                   <DialogTitle>Planifier une nouvelle formation</DialogTitle>
                   <DialogDescription>
-                    Renseignez les détails de la formation à planifier
+                    Sélectionnez une formation encodée et planifiez-la dans le calendrier
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="title">Titre de la formation</Label>
-                    <Input 
-                      id="title" 
-                      name="title" 
-                      value={formData.title} 
-                      onChange={handleInputChange} 
-                      placeholder="Titre de la formation" 
-                      required 
-                    />
+                    <Label htmlFor="selectedFormationId">Formation</Label>
+                    <Select 
+                      onValueChange={(value) => handleSelectChange("selectedFormationId", value)}
+                      value={formData.selectedFormationId}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionner une formation" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {encodedFormations.map((formation) => (
+                          <SelectItem key={formation.id} value={formation.id.toString()}>
+                            {formation.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   
                   <div className="space-y-2">
@@ -174,39 +223,6 @@ export default function FormationPlanning() {
                       onSelect={setFormationDate}
                       className="border rounded-md p-3"
                     />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="type">Type de formation</Label>
-                      <Select 
-                        onValueChange={(value) => handleSelectChange("type", value)}
-                        value={formData.type}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="technique">Technique</SelectItem>
-                          <SelectItem value="management">Management</SelectItem>
-                          <SelectItem value="soft-skills">Soft Skills</SelectItem>
-                          <SelectItem value="certification">Certification</SelectItem>
-                          <SelectItem value="autre">Autre</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="duration">Durée (heures)</Label>
-                      <Input 
-                        id="duration" 
-                        name="duration" 
-                        type="number" 
-                        value={formData.duration} 
-                        onChange={handleInputChange} 
-                        placeholder="Durée" 
-                      />
-                    </div>
                   </div>
                   
                   <div className="space-y-2">
