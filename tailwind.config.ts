@@ -11,7 +11,38 @@ const config: Config = {
   theme: {
   	extend: {
   		colors: {
-  			background: 'hsl(var(--background))',
+            // Couleur principale d'Orange
+            "orange-brand": "#FF7900",
+            
+            // Nuances d'orange
+            orange: {
+              50: "#FFF1E6",
+              100: "#FFE8D9",
+              200: "#FFD1B3",
+              300: "#FFBA8C",
+              400: "#FFA366",
+              500: "#FF7900", // Orange principal
+              600: "#CC6100",
+              700: "#994900",
+              800: "#663000",
+              900: "#331800",
+            },
+            
+            // Gris
+            grey: {
+              50: "#F8F8F8",
+              100: "#F2F2F2",
+              200: "#D8D8D8",
+              300: "#BEBEBE",
+              400: "#A4A4A4",
+              500: "#8A8A8A",
+              600: "#707070",
+              700: "#565656",
+              800: "#3C3C3C",
+              900: "#222222",
+            },
+  			
+            background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
   				DEFAULT: 'hsl(var(--card))',
