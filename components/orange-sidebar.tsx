@@ -113,7 +113,7 @@ export function OrangeSidebar() {
   ]
 
   return (
-    <div className="w-64 h-screen overflow-y-auto scrollbar-hide bg-gray-900 border-r border-orange-700/30 hidden md:block">
+    <div className="w-64 h-screen overflow-y-hidden bg-gray-900 border-r border-orange-700/30 hidden md:block">
       <div className="p-4">
         <div className="space-y-6">
           {menuItems.map((section, i) => (

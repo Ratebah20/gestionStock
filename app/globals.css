@@ -9,6 +9,33 @@ body {
   overflow-x: hidden; /* Empêcher le défilement horizontal */
 }
 
+/* Styles personnalisés pour les scrollbars */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(31, 31, 35, 0.8);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #FF7900;
+  border-radius: 8px;
+  border: 2px solid rgba(31, 31, 35, 0.8);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #FF9233;
+}
+
+/* Styles Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #FF7900 rgba(31, 31, 35, 0.8);
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -21,6 +48,12 @@ body {
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;  /* Chrome, Safari and Opera */
+  }
+  
+  /* Classes utilitaires pour les scrollbars personnalisées */
+  .scrollbar-styled {
+    scrollbar-width: thin;
+    scrollbar-color: #FF7900 rgba(31, 31, 35, 0.8);
   }
 }
 
