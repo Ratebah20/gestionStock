@@ -20,12 +20,40 @@ import {
   Info
 } from "lucide-react"
 
+// Define TypeScript interfaces
+interface Task {
+  id: number;
+  title: string;
+  description: string;
+  dueDate: string; // Format: DD/MM/YYYY HH:MM
+  priority: 'high' | 'medium' | 'low';
+  status: 'pending' | 'completed';
+  recurring: boolean;
+  recurrencePattern: 'daily' | 'weekly' | 'monthly' | null;
+  assignedTo: string[];
+  category: string;
+  notes?: string;
+  completedDate?: string; // Format: DD/MM/YYYY HH:MM
+}
+
+interface TeamMember {
+  id: number;
+  name: string;
+  role: string;
+}
+
+interface TaskCategory {
+  id: string;
+  name: string;
+  color: 'blue' | 'green' | 'purple' | 'gray' | 'red';
+}
+
 export default function Tasks() {
   const [activeView, setActiveView] = useState('list');
   const [showAddForm, setShowAddForm] = useState(false);
   
-  // Données fictives pour les tâches et rappels
-  const tasks = [
+  // Données fictives pour les tâches et rappels avec types
+  const tasks: Task[] = [
     { 
       id: 1, 
       title: 'Inventaire mensuel', 
@@ -94,16 +122,16 @@ export default function Tasks() {
     },
   ];
   
-  // Équipe (pour l'assignation des tâches)
-  const team = [
+  // Équipe (pour l'assignation des tâches) avec types
+  const team: TeamMember[] = [
     { id: 1, name: 'Martin T.', role: 'Responsable stock' },
     { id: 2, name: 'Sophie D.', role: 'Assistante logistique' },
     { id: 3, name: 'Thomas P.', role: 'Acheteur' },
     { id: 4, name: 'Julie M.', role: 'Responsable expédition' },
   ];
   
-  // Catégories de tâches
-  const taskCategories = [
+  // Catégories de tâches avec types
+  const taskCategories: TaskCategory[] = [
     { id: 'inventory', name: 'Inventaire', color: 'blue' },
     { id: 'order', name: 'Commandes', color: 'green' },
     { id: 'shipping', name: 'Expédition', color: 'purple' },
@@ -111,18 +139,30 @@ export default function Tasks() {
     { id: 'quality', name: 'Qualité', color: 'red' },
   ];
   
-  // Tâches à venir (prochains jours)
+  // Helper function to parse DD/MM/YYYY HH:MM string to Date object
+  const parseDateString = (dateStr: string): Date | null => {
+    const parts = dateStr.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})/);
+    if (!parts) return null;
+    // parts[3] = year, parts[2] = month (0-indexed), parts[1] = day, parts[4] = hour, parts[5] = minute
+    return new Date(parseInt(parts[3]), parseInt(parts[2]) - 1, parseInt(parts[1]), parseInt(parts[4]), parseInt(parts[5]));
+  };
+
+  // Tâches à venir (prochains jours) avec tri de dates amélioré
   const upcomingTasks = tasks
     .filter(task => task.status !== 'completed')
     .sort((a, b) => {
-      const dateA = new Date(a.dueDate.split(' ')[0].split('/').reverse().join('-'));
-      const dateB = new Date(b.dueDate.split(' ')[0].split('/').reverse().join('-'));
-      return dateA - dateB;
+      const dateA = parseDateString(a.dueDate);
+      const dateB = parseDateString(b.dueDate);
+      // Handle cases where dates might be invalid
+      if (!dateA && !dateB) return 0;
+      if (!dateA) return 1; // Put invalid dates at the end
+      if (!dateB) return -1; // Put invalid dates at the end
+      return dateA.getTime() - dateB.getTime();
     })
     .slice(0, 3);
   
   // Fonction pour obtenir la classe CSS en fonction de la priorité
-  const getPriorityClass = (priority) => {
+  const getPriorityClass = (priority: Task['priority']) => {
     switch (priority) {
       case 'high': return 'bg-red-900/30 text-red-400';
       case 'medium': return 'bg-yellow-900/30 text-yellow-400';
@@ -132,7 +172,7 @@ export default function Tasks() {
   };
   
   // Fonction pour obtenir la classe CSS en fonction de la catégorie
-  const getCategoryClass = (categoryId) => {
+  const getCategoryClass = (categoryId: TaskCategory['id']) => {
     const category = taskCategories.find(c => c.id === categoryId);
     switch (category?.color) {
       case 'blue': return 'bg-blue-900/30 text-blue-400';
@@ -144,21 +184,24 @@ export default function Tasks() {
   };
   
   // Fonction pour marquer une tâche comme terminée
-  const completeTask = (id) => {
+  const completeTask = (id: Task['id']) => {
     // Dans une application réelle, cela mettrait à jour l'état
     console.log(`Task ${id} marked as completed`);
+    // Exemple: setTasks(prevTasks => prevTasks.map(t => t.id === id ? { ...t, status: 'completed', completedDate: new Date().toLocaleString() } : t));
   };
   
   // Fonction pour éditer une tâche
-  const editTask = (id) => {
+  const editTask = (id: Task['id']) => {
     // Dans une application réelle, cela ouvrirait un formulaire d'édition
     console.log(`Edit task ${id}`);
+    // Exemple: const taskToEdit = tasks.find(t => t.id === id); /* ouvrir modal/form avec taskToEdit */
   };
   
   // Fonction pour supprimer une tâche
-  const deleteTask = (id) => {
+  const deleteTask = (id: Task['id']) => {
     // Dans une application réelle, cela supprimerait la tâche
     console.log(`Delete task ${id}`);
+    // Exemple: setTasks(prevTasks => prevTasks.filter(t => t.id !== id));
   };
 
   return (
@@ -454,3 +497,9 @@ export default function Tasks() {
                 ))}
               </div>
             )}
+          </Card>
+        </main>
+      </div>
+    </div>
+  );
+}
